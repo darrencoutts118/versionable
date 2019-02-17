@@ -112,7 +112,7 @@ trait VersionableTrait
     public function currentVersion()
     {
         $class = $this->getVersionClass();
-        return $this->versions()->orderBy($class::CREATED_AT, 'DESC')->first();
+        return $this->versions()->latest()->first();
     }
 
     /**
@@ -168,10 +168,12 @@ trait VersionableTrait
             ( $this->versioningEnabled === true && !$this->updating && !is_null($this->versionableDirtyData) && count($this->versionableDirtyData))
         ) {
             // Save a new version
+            dd([$this->toArray(), $this->getAttributes(), $this->relationsToArray()]);
             $class                     = $this->getVersionClass();
             $version                   = new $class();
             $version->versionable_id   = $this->getKey();
             $version->versionable_type = get_class($this);
+            $version->version_type     = 'revision';
             $version->user_id          = $this->getAuthUserId();
             $version->model_data       = serialize($this->getAttributes());
 
