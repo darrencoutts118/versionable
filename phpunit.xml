@@ -3,12 +3,13 @@
          backupStaticAttributes="false"
          bootstrap="vendor/autoload.php"
          colors="true"
+         verbose="true"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
-         processIsolation="true"
-         stopOnFailure="true"
-         syntaxCheck="false">
+         processIsolation="false"
+         stopOnFailure="false"
+>
     <testsuites>
         <testsuite name="Versionable Suite">
             <directory>tests/</directory>

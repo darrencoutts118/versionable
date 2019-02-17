@@ -2,7 +2,6 @@
 namespace Mpociot\Versionable;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * Class VersionableTrait
@@ -14,14 +13,14 @@ trait VersionableTrait
     /**
      * Retrieve, if exists, the property that define that Version model.
      * If no property defined, use the default Version model.
-     * 
+     *
      * Trait cannot share properties whth their class !
      * http://php.net/manual/en/language.oop5.traits.php
      * @return unknown|string
      */
     protected function getVersionClass()
     {
-        if( property_exists( self::class, 'versionClass') ) {
+        if (property_exists(self::class, 'versionClass')) {
             return $this->versionClass;
         }
 
@@ -31,7 +30,7 @@ trait VersionableTrait
     /**
      * Private variable to detect if this is an update
      * or an insert
-     * @var bool
+     * @var boolean
      */
     private $updating;
 
@@ -50,7 +49,7 @@ trait VersionableTrait
 
     /**
      * Flag that determines if the model allows versioning at all
-     * @var bool
+     * @var boolean
      */
     protected $versioningEnabled = true;
 
@@ -95,7 +94,6 @@ trait VersionableTrait
         static::saved(function ($model) {
             $model->versionablePostSave();
         });
-
     }
 
     /**
@@ -104,7 +102,7 @@ trait VersionableTrait
      */
     public function versions()
     {
-        return $this->morphMany( $this->getVersionClass(), 'versionable');
+        return $this->morphMany($this->getVersionClass(), 'versionable');
     }
 
     /**
@@ -114,7 +112,7 @@ trait VersionableTrait
     public function currentVersion()
     {
         $class = $this->getVersionClass();
-        return $this->versions()->orderBy( $class::CREATED_AT, 'DESC')->first();
+        return $this->versions()->orderBy($class::CREATED_AT, 'DESC')->first();
     }
 
     /**
@@ -136,10 +134,11 @@ trait VersionableTrait
      */
     public function getVersionModel($version_id)
     {
-        $version = $this->versions()->where("version_id", "=", $version_id)->first();
+        $version = $this->versions()->where('version_id', '=', $version_id)->first();
         if (!is_null($version)) {
             return $version->getModel();
         }
+
         return null;
     }
 
@@ -165,8 +164,7 @@ trait VersionableTrait
         /**
          * We'll save new versions on updating and first creation
          */
-        if (
-            ( $this->versioningEnabled === true && $this->updating && $this->isValidForVersioning() ) ||
+        if (( $this->versioningEnabled === true && $this->updating && $this->isValidForVersioning() ) ||
             ( $this->versioningEnabled === true && !$this->updating && !is_null($this->versionableDirtyData) && count($this->versionableDirtyData))
         ) {
             // Save a new version
@@ -177,7 +175,7 @@ trait VersionableTrait
             $version->user_id          = $this->getAuthUserId();
             $version->model_data       = serialize($this->getAttributes());
 
-            if (!empty( $this->reason )) {
+            if (!empty($this->reason)) {
                 $version->reason = $this->reason;
             }
 
@@ -189,7 +187,7 @@ trait VersionableTrait
 
     /**
      * Delete old versions of this model when the reach a specific count.
-     * 
+     *
      * @return void
      */
     private function purgeOldVersions()
@@ -197,7 +195,7 @@ trait VersionableTrait
         $keep = isset($this->keepOldVersions) ? $this->keepOldVersions : 0;
         $count = $this->versions()->count();
 
-        if ((int)$keep > 0 && $count > $keep) {
+        if ((int) $keep > 0 && $count > $keep) {
             $oldVersions = $this->versions()
                 ->latest()
                 ->take($count)
@@ -212,11 +210,11 @@ trait VersionableTrait
     /**
      * Determine if a new version should be created for this model.
      *
-     * @return bool
+     * @return boolean
      */
     private function isValidForVersioning()
     {
-        $dontVersionFields = isset( $this->dontVersionFields ) ? $this->dontVersionFields : [];
+        $dontVersionFields = isset($this->dontVersionFields) ? $this->dontVersionFields : [];
         $removeableKeys    = array_merge($dontVersionFields, [$this->getUpdatedAtColumn()]);
 
         if (method_exists($this, 'getDeletedAtColumn')) {
@@ -227,15 +225,14 @@ trait VersionableTrait
     }
 
     /**
-     * @return int|null
+     * @return integer|null
      */
     protected function getAuthUserId()
     {
         if (Auth::check()) {
             return Auth::id();
         }
+
         return null;
     }
-
-
 }

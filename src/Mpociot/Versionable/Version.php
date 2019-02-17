@@ -1,9 +1,8 @@
 <?php
 namespace Mpociot\Versionable;
 
-use Illuminate\Support\Facades\Config;
 use Illuminate\Database\Eloquent\Model as Eloquent;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Config;
 
 /**
  * Class Version
@@ -15,12 +14,12 @@ class Version extends Eloquent
     /**
      * @var string
      */
-    public $table = "versions";
+    public $table = 'versions';
 
     /**
      * @var string
      */
-    protected $primaryKey = "version_id";
+    protected $primaryKey = 'version_id';
 
     /**
      * Sets up the relation
@@ -37,7 +36,7 @@ class Version extends Eloquent
      */
     public function getResponsibleUserAttribute()
     {
-        $model = Config::get("auth.providers.users.model");
+        $model = Config::get('auth.providers.users.model');
         return $model::find($this->user_id);
     }
 
@@ -68,11 +67,12 @@ class Version extends Eloquent
     public function revert()
     {
         $model = $this->getModel();
-        unset( $model->{$model->getCreatedAtColumn()} );
-        unset( $model->{$model->getUpdatedAtColumn()} );
+        unset($model->{$model->getCreatedAtColumn()});
+        unset($model->{$model->getUpdatedAtColumn()});
         if (method_exists($model, 'getDeletedAtColumn')) {
-            unset( $model->{$model->getDeletedAtColumn()} );
+            unset($model->{$model->getDeletedAtColumn()});
         }
+
         $model->save();
         return $model;
     }
@@ -91,17 +91,18 @@ class Version extends Eloquent
 
         $diffArray = array_diff_assoc($diff->getAttributes(), $model->getAttributes());
 
-        if (isset( $diffArray[ $model->getCreatedAtColumn() ] )) {
-            unset( $diffArray[ $model->getCreatedAtColumn() ] );
+        if (isset($diffArray[$model->getCreatedAtColumn()])) {
+            unset($diffArray[$model->getCreatedAtColumn()]);
         }
-        if (isset( $diffArray[ $model->getUpdatedAtColumn() ] )) {
-            unset( $diffArray[ $model->getUpdatedAtColumn() ] );
+
+        if (isset($diffArray[$model->getUpdatedAtColumn()])) {
+            unset($diffArray[$model->getUpdatedAtColumn()]);
         }
-        if (method_exists($model, 'getDeletedAtColumn') && isset( $diffArray[ $model->getDeletedAtColumn() ] )) {
-            unset( $diffArray[ $model->getDeletedAtColumn() ] );
+
+        if (method_exists($model, 'getDeletedAtColumn') && isset($diffArray[$model->getDeletedAtColumn()])) {
+            unset($diffArray[$model->getDeletedAtColumn()]);
         }
 
         return $diffArray;
     }
-
 }
