@@ -281,10 +281,10 @@ class VersionableTest extends VersionableTestCase
 
         $this->assertCount(3, $user->versions);
 
-        $this->assertEquals('Marcel', $user->getVersionModel(1)->name);
-        $this->assertEquals('John', $user->getVersionModel(2)->name);
-        $this->assertEquals('Michael', $user->getVersionModel(3)->name);
-        $this->assertEquals(null, $user->getVersionModel(4));
+        $this->assertEquals('Marcel', $user->getVersionModel(2)->name);
+        $this->assertEquals('John', $user->getVersionModel(4)->name);
+        $this->assertEquals('Michael', $user->getVersionModel(6)->name);
+        $this->assertEquals(null, $user->getVersionModel(8));
     }
 
     public function testUseReasonAttribute()
@@ -414,10 +414,10 @@ class VersionableTest extends VersionableTestCase
         $model->save();
 
         // Assert that no row in default Version table
-        $this->assertEquals(0, Version::all()->count());
+        $this->assertEquals(0, Version::where('version_type', 'revision')->count());
 
         // But are in Custom version table
-        $this->assertEquals(2, DynamicVersionModel::all()->count());
+        $this->assertEquals(2, DynamicVersionModel::where('version_type', 'revision')->count());
 
         // Assert that some versions exist
         $this->assertEquals(2, $model->versions->count());
@@ -450,10 +450,10 @@ class VersionableTest extends VersionableTestCase
         $model->save();
 
         // Assert that no row in default Version table
-        $this->assertCount(0, Version::all());
+        $this->assertEquals(0, Version::where('revision_type', 'revision')->count());
 
         // But are in Custom version table
-        $this->assertCount(2, DynamicVersionModel::all());
+        $this->assertEquals(2, DynamicVersionModel::where('version_type', 'revision')->count());
     }
 
     public function testKeepMaxVersionCount()
@@ -485,7 +485,7 @@ class VersionableTest extends VersionableTestCase
         $model->save();
 
         // We limit the versions to only keep the latest one.
-        $this->assertEquals(2, Version::all()->count());
+        $this->assertEquals(2, Version::where('version_type', 'revision')->count());
 
         $this->assertEquals(2, $model->versions()->count());
 

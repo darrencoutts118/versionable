@@ -102,7 +102,7 @@ trait VersionableTrait
      */
     public function versions()
     {
-        return $this->morphMany($this->getVersionClass(), 'versionable');
+        return $this->morphMany($this->getVersionClass(), 'versionable')->where('version_type', 'revision');
     }
 
     /**
@@ -153,6 +153,8 @@ trait VersionableTrait
             $this->versionableDirtyData = $this->getDirty();
             $this->updating             = $this->exists;
         }
+
+        $this->saveVersion('pending');
     }
 
     /**
@@ -167,24 +169,34 @@ trait VersionableTrait
         if (( $this->versioningEnabled === true && $this->updating && $this->isValidForVersioning() ) ||
             ( $this->versioningEnabled === true && !$this->updating && !is_null($this->versionableDirtyData) && count($this->versionableDirtyData))
         ) {
-            // Save a new version
-            dd([$this->toArray(), $this->getAttributes(), $this->relationsToArray()]);
-            $class                     = $this->getVersionClass();
-            $version                   = new $class();
-            $version->versionable_id   = $this->getKey();
-            $version->versionable_type = get_class($this);
-            $version->version_type     = 'revision';
-            $version->user_id          = $this->getAuthUserId();
-            $version->model_data       = serialize($this->getAttributes());
-
-            if (!empty($this->reason)) {
-                $version->reason = $this->reason;
-            }
-
-            $version->save();
-
+            $this->saveVersion('revision');
             $this->purgeOldVersions();
         }
+    }
+
+    /**
+     * Save a version of the model into the database
+     *
+     * @param string $version_type
+     * @return Model
+     */
+    protected function saveVersion($version_type)
+    {
+        // Save a new version
+        $class                     = $this->getVersionClass();
+        $version                   = new $class();
+        $version->versionable_id   = $this->getKey() ?? 1;
+        $version->versionable_type = get_class($this);
+        $version->version_type     = $version_type;
+        $version->user_id          = $this->getAuthUserId();
+        $version->model_data       = serialize($this->getAttributes());
+
+        if (!empty($this->reason)) {
+            $version->reason = $this->reason;
+        }
+
+        $version->save();
+        return $version;
     }
 
     /**
