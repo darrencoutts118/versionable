@@ -2,19 +2,14 @@
 
 namespace Tests\Stubs;
 
-use Chelout\RelationshipEvents\Concerns\HasBelongsToManyEvents;
-use Chelout\RelationshipEvents\Concerns\HasManyEvents;
-use Chelout\RelationshipEvents\Concerns\HasMorphOneEvents;
-use Chelout\RelationshipEvents\Concerns\HasOneEvents;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
+use Mpociot\Versionable\VersionableTrait;
 
 class User extends Model
 {
-    use HasOneEvents,
-        HasManyEvents,
-        HasMorphOneEvents,
-        HasBelongsToManyEvents;
+    
+    use VersionableTrait;
 
     public $fillable = ['name'];
 

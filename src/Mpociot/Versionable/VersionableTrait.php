@@ -2,6 +2,7 @@
 namespace Mpociot\Versionable;
 
 use Illuminate\Support\Facades\Auth;
+use Event;
 
 /**
  * Class VersionableTrait
@@ -112,7 +113,7 @@ trait VersionableTrait
     public static function bootVersionableTrait()
     {
         static::saving(function ($model) {
-            $model->versionablePreSave();
+            return $model->versionablePreSave();
         });
 
         static::saved(function ($model) {
@@ -173,12 +174,16 @@ trait VersionableTrait
      */
     protected function versionablePreSave()
     {
+        if ($this->approvalsEnabled === true) {
+            $version = $this->saveVersion('pending');
+            event('eloquent.pendingApproval', $this, $version);
+            return false;
+        }
+
         if ($this->versioningEnabled === true) {
             $this->versionableDirtyData = $this->getDirty();
             $this->updating             = $this->exists;
         }
-
-        $this->saveVersion('pending');
     }
 
     /**
@@ -209,7 +214,7 @@ trait VersionableTrait
         // Save a new version
         $class                     = $this->getVersionClass();
         $version                   = new $class();
-        $version->versionable_id   = $this->getKey() ?? 1;
+        $version->versionable_id   = $this->getKey() ?? null;
         $version->versionable_type = get_class($this);
         $version->version_type     = $version_type;
         $version->user_id          = $this->getAuthUserId();
