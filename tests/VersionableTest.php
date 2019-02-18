@@ -281,10 +281,10 @@ class VersionableTest extends VersionableTestCase
 
         $this->assertCount(3, $user->versions);
 
-        $this->assertEquals('Marcel', $user->getVersionModel(2)->name);
-        $this->assertEquals('John', $user->getVersionModel(4)->name);
-        $this->assertEquals('Michael', $user->getVersionModel(6)->name);
-        $this->assertEquals(null, $user->getVersionModel(8));
+        $this->assertEquals('Marcel', $user->getVersionModel(1)->name);
+        $this->assertEquals('John', $user->getVersionModel(2)->name);
+        $this->assertEquals('Michael', $user->getVersionModel(3)->name);
+        $this->assertEquals(null, $user->getVersionModel(4));
     }
 
     public function testUseReasonAttribute()
