@@ -58,13 +58,12 @@ class Version extends Eloquent
         return $model;
     }
 
-
     /**
-     * Revert to the stored model version make it the current version
+     * Publish the stored model version make it the current version
      *
      * @return Model
      */
-    public function revert()
+    public function publish()
     {
         $model = $this->getModel();
         unset($model->{$model->getCreatedAtColumn()});
@@ -75,6 +74,16 @@ class Version extends Eloquent
 
         $model->save();
         return $model;
+    }
+
+    /**
+     * Revert to the stored model version make it the current version
+     *
+     * @return Model
+     */
+    public function revert()
+    {
+        return $this->publish();
     }
 
     /**
