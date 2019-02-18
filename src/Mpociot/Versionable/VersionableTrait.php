@@ -54,6 +54,12 @@ trait VersionableTrait
     protected $versioningEnabled = true;
 
     /**
+     * Flag that determines if the model allows approvals at all
+     * @var boolean
+     */
+    protected $approvalsEnabled = false;
+
+    /**
      * @return $this
      */
     public function enableVersioning()
@@ -68,6 +74,24 @@ trait VersionableTrait
     public function disableVersioning()
     {
         $this->versioningEnabled = false;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function enableApprovals()
+    {
+        $this->approvalsEnabled = true;
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function disableApprovals()
+    {
+        $this->approvalsEnabled = false;
         return $this;
     }
 
