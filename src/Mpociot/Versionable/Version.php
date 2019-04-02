@@ -114,4 +114,15 @@ class Version extends Eloquent
 
         return $diffArray;
     }
+
+    public function reject()
+    {
+        event('eloquent.rejected', $this->versionable, $this);
+        $this->delete();
+    }
+
+    public function scopeApprovals($query)
+    {
+        return $query->where('version_type', 'pending');
+    }
 }

@@ -96,4 +96,60 @@ class ApprovalsTest extends VersionableTestCase
         });
     }
 
+    public function test_a_version_can_be_rejected()
+    {
+        $user = $this->mockUser();
+        $user->save();
+
+        $approval = Version::approvals()->first();
+
+        $approval->reject();
+
+        $this->assertCount(0, Version::approvals()->get());
+    }
+
+    public function test_when_a_version_is_rejected_it_is_not_stored()
+    {
+        $user = $this->mockUser();
+        $user->save();
+
+        $approval = Version::approvals()->first();
+
+        $approval->reject();
+
+        $this->assertCount(0, User::all());
+    }    
+
+    public function test_when_a_version_is_rejected_a_event_is_dispatched()
+    {
+        $user = $this->mockUser();
+        $user->save();
+
+        $approval = Version::approvals()->first();
+
+        //Event::fake();
+
+        $approval->reject();
+
+        Event::assertDispatched('eloquent.rejected', function ($event, $model, $version) use ($user) {
+            $data = unserialize($version->model_data);
+            return (
+                        (null == $version->versionable_type) &&
+                        ($version->versionable_id == null) &&
+                        ($model->name == $data['name'])
+                    );
+        });
+    }
+
+    public function test_when_a_version_is_rejected_it_can_be_retrived()
+    {
+        $user = $this->mockUser();
+        $user->save();
+
+        $approval = Version::approvals()->first();
+
+        $approval->reject();
+
+        $this->assertCount(1, Version::approvals('rejected')->get());
+    }
 }
