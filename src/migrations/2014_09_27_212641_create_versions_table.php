@@ -18,6 +18,7 @@ class CreateVersionsTable extends Migration
             $table->string('versionable_id')->nullable();
             $table->string('versionable_type');
             $table->string('version_type');
+            $table->string('status')->enum(['approved', 'rejected'])->nullable();
             $table->string('user_id')->nullable();
             $table->binary('model_data');
             $table->string('reason', 100)->nullable();

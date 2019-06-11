@@ -127,16 +127,15 @@ class ApprovalsTest extends VersionableTestCase
 
         $approval = Version::approvals()->first();
 
-        //Event::fake();
+        Event::fake();
 
         $approval->reject();
 
         Event::assertDispatched('eloquent.rejected', function ($event, $model, $version) use ($user) {
-            $data = unserialize($version->model_data);
             return (
-                        (null == $version->versionable_type) &&
+                        (User::class == $version->versionable_type) &&
                         ($version->versionable_id == null) &&
-                        ($model->name == $data['name'])
+                        is_null($model)
                     );
         });
     }
@@ -151,5 +150,31 @@ class ApprovalsTest extends VersionableTestCase
         $approval->reject();
 
         $this->assertCount(1, Version::approvals('rejected')->get());
+    }
+
+    public function test_when_a_new_item_is_created_an_approval_exists()
+    {
+        $user = $this->mockUser();
+        $user->disableApprovals();
+        $user->save();
+        
+        $user->enableApprovals();
+        $user->name = 'Here We Go';
+        $user->save();
+
+        $this->assertCount(1, $user->approvals);
+    }
+
+    public function test_when_a_new_item_is_created_it_is_saved()
+    {
+        $user = $this->mockUser();
+        $user->save();
+        
+        $version = Version::approvals()->first();
+        $version->approve();
+
+        $this->assertCount(1, User::all());
+        $this->assertCount(0, Version::approvals());
+        $this->assertCount(1, Version::approvals('approved'));
     }
 }

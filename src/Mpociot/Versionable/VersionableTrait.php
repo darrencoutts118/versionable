@@ -131,6 +131,15 @@ trait VersionableTrait
     }
 
     /**
+     * Return all versions of the model
+     * @return MorphMany
+     */
+    public function approvals($type = 'pending')
+    {
+        return $this->morphMany($this->getVersionClass(), 'versionable')->where('version_type', $type);
+    }
+
+    /**
      * Returns the latest version available
      * @return Version
      */

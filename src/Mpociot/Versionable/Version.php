@@ -3,6 +3,7 @@ namespace Mpociot\Versionable;
 
 use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class Version
@@ -10,7 +11,6 @@ use Illuminate\Support\Facades\Config;
  */
 class Version extends Eloquent
 {
-
     /**
      * @var string
      */
@@ -51,6 +51,7 @@ class Version extends Eloquent
             : $this->model_data;
 
         $model = new $this->versionable_type();
+        $model->disableApprovals();
         $model->unguard();
         $model->fill(unserialize($modelData));
         $model->exists = true;
@@ -115,14 +116,25 @@ class Version extends Eloquent
         return $diffArray;
     }
 
-    public function reject()
+    public function approve($reason = null)
     {
-        event('eloquent.rejected', $this->versionable, $this);
-        $this->delete();
+        event('eloquent.approved', $this->versionable, $this);
+        $this->status = 'approved';
+        $this->save();
+
+        // save the model
+        $this->publish();
     }
 
-    public function scopeApprovals($query)
+    public function reject($reason = null)
     {
-        return $query->where('version_type', 'pending');
+        event('eloquent.rejected', $this->versionable, $this);
+        $this->status = 'rejected';
+        $this->save();
+    }
+
+    public function scopeApprovals($query, $status = null)
+    {
+        return $query->where('version_type', 'pending')->where('status', $status);
     }
 }
